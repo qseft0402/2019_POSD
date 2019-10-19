@@ -1,0 +1,22 @@
+10/19(六) 13:30 POSD上機考
+(門口會貼座位表請依序入座)
+  請攜帶學生證以便確認身分
+
+考場規定:
+
+1. 允許攜帶英文版 Design Patterns textbook
+    (不可帶中文或影本)
+2. 可參考教授的gitlab網站
+3. 可參考自己的 gitlab網站
+    (請不要夾帶無關文件或非自己的Code)
+4. 可參考cplusplus.com
+5. 可參考字典網站 https://dictionary.cambridge.org/
+6. 請勿使用Google查詢其他網站
+
+違反考場規定
+第一次扣分
+第二次以零分計算
+
+BY 助教
+老師網址:https://ssl-gitlab.csie.ntut.edu.tw/yccheng/posd2019f
+Jenkins:https://ssl-jenkins.csie.ntut.edu.tw/login?from=/

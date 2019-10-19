@@ -1,0 +1,30 @@
+.PHONY: clean dirs
+
+BIN=bin
+SRC=src
+TEST=test
+OBJ=obj
+LIBS=-lgtest -lpthread
+
+all: clean dict $(BIN)/fs
+
+$(BIN)/fs: $(TEST)/ut_fs.cpp $(TEST)/ut_fs.h $(SRC)/node.h $(SRC)/folder.h $(SRC)/file.h $(SRC)/node_iterator.h $(SRC)/info_content_visitor.h $(SRC)/visitor.h $(SRC)/find_visitor.h $(OBJ)/info_content_visitor.o $(OBJ)/find_visitor.o
+	g++ -std=c++11 $< $(OBJ)/info_content_visitor.o $(OBJ)/find_visitor.o -o $@ $(LIBS)
+
+$(OBJ)/info_content_visitor.o: $(SRC)/info_content_visitor.cpp $(SRC)/info_content_visitor.h
+	g++ -std=c++11 -c $< -o $@ $(LIBS)
+
+$(OBJ)/find_visitor.o: $(SRC)/find_visitor.cpp $(SRC)/find_visitor.h
+	g++ -std=c++11 -c $< -o $@ $(LIBS)
+
+dirs:
+	mkdir -p $(SRC) $(TEST) $(BIN) $(OBJ)
+
+dict:
+	mkdir -p $(BIN) $(OBJ)
+
+clean:
+	rm -rf $(BIN) $(OBJ)
+
+stat:
+	wc src/* test/*
