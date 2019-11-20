@@ -14,22 +14,18 @@ void FindVisitor::visitFolder(Folder * folder){
     
     if(_folderPath.length()==0){
         _folderPath=folder->getPath();
-        // cout<<"_folderPath:"<<_folderPath<<endl;
         _matchNode.clear();
     }
     Iterator* it=folder->createIterator();
     for(it->first();!it->isDone();it->next()){
         Node* currentNode=it->currentItem();
-        // cout<<currentNode->getPath()<<endl;
         if(currentNode->name()==_name){
-            // cout<<"put!!:"<<currentNode->getPath()<<endl;
             _matchNode.insert({currentNode->getPath(),currentNode});
         }
         if(currentNode->getChildrenSize()>0){
             currentNode->accept(this);
         }
     }
-    // cout<<"total:"<<_matchNode.size()<<endl;
 
 }
 
@@ -46,23 +42,15 @@ void FindVisitor::visitLink(Link * link){// You only need to check the link itse
 }
 string FindVisitor::findResult(){
     Iterator* it=this->createIterator();
-    // cout<<"matchNode:"<<_matchNode.size()<<endl;
-    for(it->first();!it->isDone();it->next());
-        // cout<<"check!  "<<it->currentItem()->getPath()<<endl;
 
-//    cout<<"root:"<<_folderPath<<endl;
    int count;
     for(it->first(),count=0;!it->isDone();it->next(),count++){
-        
         Node* node=it->currentItem();
         string nodePath=node->getPath();
-
-        // cout<<"Node:"<<nodePath<<endl;
         regex patten_parent(_folderPath);
         regex patten_targetName(_name);
         std::smatch m;
         if(regex_search(nodePath,m,patten_parent)){
-            // cout<<m.suffix().str()<<endl;
             _result+="."+m.suffix().str();
             if(count==_matchNode.size()-1)break;
                 _result+="\n";

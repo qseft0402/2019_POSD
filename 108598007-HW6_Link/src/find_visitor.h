@@ -34,7 +34,6 @@ class FindVisitor:public Visitor
                 map<string,Node*>::iterator it;
                 map<string,Node*> _map;
                 FindVisitor* _fv;
-
         };
     public:
         FindVisitor(string name); // Name is the target we want to find.

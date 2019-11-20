@@ -188,7 +188,6 @@ TEST_F(FSTest,NotALink){
 TEST_F(FSTest,addLink){
   try{
     link->addLink(a_out);
-    // cout<<link->getSource()->getPath()<<endl;
     ASSERT_EQ(a_out->getPath(),link->getSource()->getPath());
     link->addLink(a_out1);
     ASSERT_EQ(a_out1->getPath(),link->getSource()->getPath());
@@ -247,7 +246,7 @@ TEST_F(FSTest,LinkVisitorFindResult){
     FindVisitor* visitor=new FindVisitor("a.out");
    
     link->accept(visitor);
-    // ASSERT_EQ("toa",visitor->findResult());
+    ASSERT_EQ("toa",visitor->findResult());
   }catch(string s){
     cout<<s<<endl;
   }
@@ -314,7 +313,6 @@ TEST_F(FSTest,VisitorDifferentFolder){
   test_data1->accept(fv);
   string result1 = fv->findResult(); //result1 will be "./a.out\n./folder/a.out"
   ASSERT_EQ("./a.out",result1);
-  // cout<<"change!!"<<endl;
   TA_folder->accept(fv);
   string result2 = fv->findResult(); //result1 will be "./a.out\n./folder/a.out"
   ASSERT_EQ("./a.out\n./test_data/a.out",result2);
@@ -336,7 +334,6 @@ TEST_F(FSTest,UpdateVisitorFolder){
     a_out1->renameNode("b.out");
     a_out1->accept(upv);
 //-----------------------------------------------------------------------------------------------
-    // cout<<"test_data2 path: "<<test_data2->getPath()<<endl;
     test_data2->renameNode("TA2_folder");
     ASSERT_EQ("TA2_folder", test_data2->name()); // Check the node name in your own file system!
     test_data2->accept(upv); 
@@ -371,18 +368,11 @@ TEST_F(FSTest,UpdateVisitorFolder){
 
 TEST_F(FSTest,UpdateVisitorFile){
   UpdatePathVisitor * upv = new UpdatePathVisitor();
-  // cout<<a_out->getPath()<<endl;
   a_out->renameNode("b.out");
   a_out->accept(upv);
-  // cout<<a_out->getPath()<<endl;
 
   ASSERT_EQ("test/test_folder/b.out", a_out->getPath()); // Check the path of itself!
   a_out->renameNode("a.out");
 
 }
-// TEST_F(FSTest,UpdateVisitorLink){
-//   UpdatePathVisitor * upv = new UpdatePathVisitor();
-  
-
-// }
 #endif
