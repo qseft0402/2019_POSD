@@ -20,17 +20,12 @@ FileSystemBuilder* FileSystemBuilder::instance(){
 
 
 void FileSystemBuilder::build(string path){
-  // cout<<path<<endl;
     if(Node::isFile(path.c_str())){
       _root = new File(path);
-
     }
-
     else if(Node::isLink(path.c_str())){
       _root = new Link(path);
-
     }
-
     else if(Node::isDir(path.c_str())){
         DIR * root;
         root = opendir(path.c_str());
@@ -38,12 +33,10 @@ void FileSystemBuilder::build(string path){
             throw std::string("Not Exist");
         }
         _root = new Folder(path);
-        // cout<<"_root name:"<<_root->name()<<endl;
 
         struct dirent * dp;
 
         while((dp = readdir(root)) != NULL) {
-            // cout<<"_root:"<<_root->name()<<endl;
             if(std::string(dp->d_name) ==".." || std::string(dp->d_name)== "."){
               continue;
             }

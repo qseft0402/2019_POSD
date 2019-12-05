@@ -32,9 +32,13 @@ TEST(FileSystemBuilder, NodeTypeError){
    }catch(string s){
      ASSERT_EQ("It is not Link!", s);
   }
+}
+TEST(FileSystemBuilder, singleton){
+    FileSystemBuilder * fb1 = FileSystemBuilder::instance();
+    FileSystemBuilder * fb2 = FileSystemBuilder::instance();
+    ASSERT_EQ(fb1,fb2);
 
 }
-
 TEST(FileSystemBuilder, file){
     FileSystemBuilder * fb = FileSystemBuilder::instance();
 
@@ -45,28 +49,15 @@ TEST(FileSystemBuilder, file){
     fb->build("test/test_folder/test_data/a.out");
     ASSERT_EQ("a.out", fb->getRoot()->name());
     ASSERT_EQ("test/test_folder/test_data/a.out", fb->getRoot()->getPath());
-
-
-
 }
-// void print(Iterator* it){
-//     for(it->first();!it->isDone();it->next()){
-//         cout<<it->currentItem()->getPath()<<endl;
-//         if(it->currentItem()->getType()==2)
-//             print(it->currentItem()->createIterator());
-//     }
-// }
-TEST(FileSystemBuilder, folder){
-
+TEST(FileSystemBuilder, Link){
     FileSystemBuilder * fb = FileSystemBuilder::instance();
-    // ASSERT_EQ("hw", fb->getRoot()->name());
-    // ASSERT_EQ("test/TA_folder/hw", fb->getRoot()->getPath());
-    // Iterator* it=(fb->getRoot())->createIterator();
-    // it->first();
-    // ASSERT_EQ("a.out",it->currentItem()->name());
-    // it->next();
-    // ASSERT_TRUE(it->isDone());
-    try{
+    fb->build("test/test_folder/toa");
+    ASSERT_EQ("toa", fb->getRoot()->name());
+    ASSERT_EQ("test/test_folder/toa", fb->getRoot()->getPath());
+}
+TEST(FileSystemBuilder, folder){
+    FileSystemBuilder * fb = FileSystemBuilder::instance();
     fb->build("test/test_folder");
     // cout<<"UT!! "<<fb->getRoot()->getPath()<<endl;
     ASSERT_EQ("test_folder", fb->getRoot()->name());
@@ -82,11 +73,6 @@ TEST(FileSystemBuilder, folder){
     ASSERT_EQ("toa",it->currentItem()->name());
     it->next();
     ASSERT_TRUE(it->isDone());
-  }catch(string s){
-    cout<<s<<endl;
   }
-    // ASSERT_EQ("./a.out\n./test_data/TA_folder/a.out\n./test_data/TA_folder/test_data/a.out\n./test_data/a.out\n./test_data/test_data/a.out",visitor->findResult());
-
-}
 
 #endif
