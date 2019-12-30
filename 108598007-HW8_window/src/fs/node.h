@@ -183,11 +183,12 @@ public:
 protected:
   struct stat _st;
   string _name;
+  int _type;//file:1 folder:2 link:3
 private:
   string _path;
   wxTreeItemId  _wxTreeItemId;
 
-  int _type;//file:1 folder:2
+  
 
 };
 

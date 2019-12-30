@@ -12,6 +12,7 @@ public:
     if(!S_ISLNK(this->_st.st_mode)){
       throw string("It is not Link!");
     }
+    this->_type=3;
     this->addLink(node);
     //   else if (isExists(path)){throw string("Link is not exist!");}
 
@@ -32,9 +33,9 @@ public:
   Iterator* createIterator(){
     return new NullIterator();
   } // return null Iterator
-  string name(){
-    return this->name();
-  }
+  // string name(){
+  //   return this->Node::name();
+  // }
 
 private:
     Visitor* _visitor;

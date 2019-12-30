@@ -10,28 +10,44 @@ using namespace std;
 class TreeFrame : public wxFrame
 {
 public:
-  string rootPath="test";
-  TreeFrame(const wxChar *title, int xpos, int ypos, int width, int height):wxFrame((wxFrame *) nullptr, -1, title, wxPoint(xpos, ypos), wxSize(width, height))
-  {
-    wxPanel* panel = new wxPanel(this, wxID_ANY);
 
-    _tree = new wxTreeCtrl(this, wxID_ANY, wxPoint(0,0), wxSize(150,200), wxTR_HAS_BUTTONS  | wxTR_SINGLE );
-    Node* root=SetFileSystem(rootPath);
+  TreeFrame(const wxChar *title,wxString rootPath, int xpos, int ypos, int width, int height):wxFrame((wxFrame *) nullptr, -1, title, wxPoint(xpos, ypos), wxSize(width, height))
+  {
+
+    wxPanel* panel = new wxPanel(this, wxID_ANY);
+    Node* root;
+    _tree = new wxTreeCtrl(this, wxID_ANY, wxPoint(xpos,ypos), wxSize(width,height), wxTR_HAS_BUTTONS  | wxTR_SINGLE );
+    root=SetFileSystem(string(rootPath.mb_str()));
+
     _root=root;
      Folder * folder = dynamic_cast<Folder *> (root);
 
     // cout<<"count!: "<<folder->getChild("ffff")->getPath()<<endl;
     updateTree(folder);
-    _textArea=new wxTextCtrl(this, -1, _T("you can choice file to show in textbox..."),
-		wxPoint(170,0),  wxSize(700,500), wxTE_MULTILINE);
-    _saveBtn=new wxButton(this,BUTTON_Hello,_T("Save"),wxPoint(170,510),wxSize(700,100),0);
-    // _tree->Bind(wxEVT_LEFT_DOWN  , &TreeFrame::toggle_item_onClick, this);
-    
-  }
+    cout<<"here2"<<endl;
 
+    _textArea=new wxTextCtrl(_tree, -1, _T("you can choice file to show in textbox..."),
+		wxPoint(170,0),  wxSize(700,500), wxTE_MULTILINE);
+    _textArea->Enable(false);
+    // _textArea->Connect(wxEVT_KEY_DOWN,wxKeyEventHandler(TreeFrame::KeyDownEvent1),NULL,this);
+    _saveBtn=new wxButton(this,BUTTON_Hello,_T("Save"),wxPoint(170,510),wxSize(700,100),0);
+    _saveBtn->Enable(false);
+    cout<<"here3"<<endl;
+
+    // wxAcceleratorEntry entries[1];
+    // entries[0].Set(wxACCEL_CTRL,WXK_RETURN);
+    // wxAcceleratorTable accel(1,entries);
+    // _textArea->SetAcceleratorTable(accel);
+    // _textArea->Connect(wxID_ANY,wxEVT_KEY_DOWN,wxKeyEventHandler(TreeFrame::KeyDownEvent1),NULL,this);
+    // _tree->Bind(wxEVT_LEFT_DOWN  , &TreeFrame::toggle_item_onClick, this);
+
+  }
+void KeyDownEvent1(wxKeyEvent& event){
+  cout<<"KeyDownEvent1"<<endl;
+}
   string ReadFile(string path){
     std::ifstream in(path.c_str());
-  
+
     // Check if object is valid
     if(!in)
     {
@@ -46,26 +62,22 @@ public:
       // Line contains string of length > 0 then save it in vector
       if(str.size() > 0)
         allStr+=str+"\n";
-      
+
     }
     //Close The File
     in.close();
     return allStr;
   }
   // wxTreeEvent& _event=nullptr;
+
+
+
   void read_file_item_onClick(wxTreeEvent &event)
 {
-  // cout<<"toggle_item_onclick"<<endl;
-  try{
-    // wxPoint mouse_position = event.GetPosition();
-    // int temp_num = wxTREE_HITTEST_ONITEMLABEL;
-    // _event=event;
-    // wxTreeItemId itemId = _tree->HitTest(mouse_position, temp_num);
-   
+
     wxTreeItemId itemId = event.GetItem();
     _updateItemSizeId=itemId;
     std::cout << itemId<< std::endl;
-    // cout<<"here"<<endl;
     // cout<<"going to find "<<itemId<<endl;
     Node* node=getNodeById(itemId,_root);
     // cout<<" id= "<<itemId<<endl;
@@ -73,18 +85,28 @@ public:
     if(!node) cout<<"NULLPTR"<<endl;
     else{
       if(node->getType()==1){
+          _textArea->Enable(true);
+          _saveBtn->Enable(true);
+
         // cout<<"onclick:"<<node->getPath()<<endl;
         // cout<<"here2"<<endl;
         _textArea->LoadFile(wxT_2(node->getPath()));
       }
+      else if(node->getType()==3){
+          _textArea->ChangeValue(wxT_2("The file is not displayed in the editor because it uses an unsupported text encoding."));
+          _textArea->Enable(false);
+          _saveBtn->Enable(false);
+
+          // _textArea->Refresh();
+      }
+      else if(node->getType()==2){
+          _textArea->ChangeValue(wxT_2("This is a folder can't show anything"));
+          _textArea->Enable(false);
+          _saveBtn->Enable(false);
+
+          // _textArea->Refresh();
+      }
     }
-    
-    // string fileStr=ReadFile(node->getPath());
-    
-    // cout<<"onClick1!!!\n"<<fileStr<<endl;
-  }catch(exception e){
-    cout<<e.what() ;
-  } 
 
 }
 
@@ -95,13 +117,13 @@ void updateTree(Node* root){
     root->setWxTreeItemId(rootId);
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
-      if(node->getType()==1){
+      if(node->getType()!=2){
         // cout<<"build!! "<<node->getPath()<<endl;
         wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->size())));
         node->setWxTreeItemId(id);
         // cout<<"build!! id="<<node->getWxTreeItemId()<<endl;
 
-        
+
       }else{
         wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->size())));
         node->setWxTreeItemId(id);
@@ -114,11 +136,11 @@ void updateTreeItem(wxTreeItemId pid,Node* subRoot){
     Iterator* it=subRoot->createIterator();
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
-      
+
         wxTreeItemId id =_tree->AppendItem(pid, wxT_2(node->name()+", "+to_string(node->size())));
         node->setWxTreeItemId(id);
       if(node->getType()==2){
-        
+
         updateTreeItem(id,node);
       }
     }
@@ -133,23 +155,29 @@ Node* SetFileSystem(string rootPath){
   return root;
 
 }
-void ShowMessage3(string newName,string oldName) 
+bool ShowMessageRename(string newName,string oldName)
 {
-  wxMessageDialog *dial= new wxMessageDialog(NULL, 
-      wxT("label edited: "+newName+"-- old name was "+oldName), wxT("Confirm"), 
+  wxMessageDialog *dial= new wxMessageDialog(NULL,
+      wxT("label edited: "+newName+"-- old name was "+oldName), wxT("Confirm"),
       wxYES_NO | wxCANCEL | wxNO_DEFAULT | wxICON_QUESTION);
-      dial->ShowModal();
+      return MessageIsSave(dial);
+
 }
-void ShowMessage_Save() 
+bool ShowMessageSave()
 {
-  wxMessageDialog *dial= new wxMessageDialog(NULL, 
-      wxT("You want save?"), wxT("Confirm"), 
+  wxMessageDialog *dial= new wxMessageDialog(NULL,
+      wxT("You want save?"), wxT("Confirm"),
       wxYES_NO | wxCANCEL | wxNO_DEFAULT | wxICON_QUESTION);
-      dial->ShowModal();
+      return MessageIsSave(dial);
+}
+bool MessageIsSave(wxMessageDialog *dial){
+  if(dial->ShowModal()==wxID_YES) return true;
+  else return false;
+
 }
 void OnEdit(wxTreeEvent& event)
 {
-  
+
   wxTreeItemId itemId=event.GetItem();
   std::cout << itemId<< std::endl;
   Node* node=getNodeById(itemId,_root);
@@ -166,16 +194,24 @@ void OnEdit(wxTreeEvent& event)
       if(newName==""){//if noting to change
         // cout<<"same!!"<<endl;
         return;
-      } 
+      }
       cout<<node->getPath()<<endl;
-      ShowMessage3(newName,oldName);
+      bool resultFeedBack=ShowMessageRename(newName,oldName);
+      if(resultFeedBack){
+        cout<<"resultFeedBack Yes!!"<<endl;
+
+      }else{
+        _tree->SetItemText(itemId,wxString(oldName+", "+to_string(node->getSize())));
+        event.Veto();
+        return;
+      }
       // if(_mesAnswer==wxYES) cout<<"Yes!"<<endl;
       // else if(_mesAnswer==wxNO) cout<<"NO!"<<endl;
       // else if(_mesAnswer==wxCANCEL) cout<<"Cancel!"<<endl;
 
       UpdatePathVisitor * upv = new UpdatePathVisitor();
       node->renameNode(newName);
-      node->accept(upv); 
+      node->accept(upv);
       cout<<node->getPath()<<endl;
       _tree->SetItemText(itemId,wxString(newName+", "+to_string(node->getSize())));
       event.Veto();
@@ -185,8 +221,6 @@ void OnEdit(wxTreeEvent& event)
     // cout<<(a->getChild("file2"))->getPath()<<endl;
   }
   std::cout << _tree->GetItemText(itemId)<< std::endl;
-  
-
 }
 void updataItemSize(wxTreeItemId itemId,Node* node){
   cout<<"update size!:"<<node->getSize()<<endl;
@@ -217,7 +251,7 @@ Node* getNodeById(wxTreeItemId id,Node* root){
   }else{
     Iterator* it=folder->createIterator();
     // cout<<"getNodeById count!!"<<folder->getChildrenSize()<<endl;
-    
+
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
       // cout<<"in get node "<<node->getPath()<<" id="<<node->getWxTreeItemId()<<endl;
@@ -232,9 +266,9 @@ Node* getNodeById(wxTreeItemId id,Node* root){
         if(node->getType()==2)
           return getNodeById(id,node);
       }
-    
+
   }
-  
+
 return nullptr;
 
 
@@ -249,18 +283,57 @@ void DClick(wxTreeEvent& event){
 void saveBtnFunc(wxCommandEvent& event){
   cout<<"ID:"<<event.GetId()<<endl;
   cout<<"save!!"<<endl;
+  saveFile();
+
+
+
+
+}
+void saveFile(){
+  Node* node=getNodeById(_updateItemSizeId,_root);
+  if(node->getType()==1){
+    bool resultFeedBack=ShowMessageSave();
+    if(resultFeedBack){
+      cout<<"going to save " <<_filePath<<endl;
+    }
+    else{
+
+      return ;
+    }
+  }
   cout<<_textArea->GetLineText(0)<<endl;
   cout<<_textArea->GetNumberOfLines()<<endl;
-  ShowMessage_Save();
-
-  cout<<"going to save " <<_filePath<<endl;
   _textArea->SaveFile(wxT_2(_filePath));
-  Node* node=getNodeById(_updateItemSizeId,_root);
+
   updataItemSize(_updateItemSizeId,node);
+
+}
+bool ctrlRun=false;
+bool slRun=false;
+
+void KeyDownEvent(wxTreeEvent& event){
+  cout<<"key press!!"<<event.GetKeyCode()<<endl;
+  if(event.GetKeyCode()==308) ctrlRun=true;
+  else if(event.GetKeyCode()==83) slRun=true;
+  else{
+     resetCtrlAndS();
+  }
+  if(ctrlRun && slRun)
+  {
+    saveFile();
+  }
+}
+void resetCtrlAndS(){
+    ctrlRun=false;
+     slRun=false;
+}
+void DialogFeedback(wxInitDialogEvent&  event){
+  cout<<"DialogFeedback"<<endl;
 }
   wxTreeCtrl *_tree;
 private:
   DECLARE_EVENT_TABLE()
+  bool _run;
   Node* _root;
   int _mesAnswer;
   wxTextCtrl *_textArea;
@@ -276,6 +349,14 @@ BEGIN_EVENT_TABLE(TreeFrame, wxFrame)
   EVT_TREE_SEL_CHANGED(wxID_ANY,TreeFrame::read_file_item_onClick)
   EVT_TREE_BEGIN_LABEL_EDIT(wxID_ANY,TreeFrame::test)
   EVT_BUTTON(wxID_ANY, TreeFrame::saveBtnFunc)
+  EVT_TREE_KEY_DOWN(wxID_ANY,TreeFrame::KeyDownEvent)
+  // EVT_TEXT_ENTER(wxID_ANY,TreeFrame::KeyDownEvent1)
+  EVT_INIT_DIALOG(TreeFrame::DialogFeedback)
+  // EVT_CHAR(TreeFrame::KeyDownEvent1 )
+
+  // EVT_KEY_UP(TreeFrame::KeyDownEvent1)
+  // EVT_CHAR_HOOK(TreeFrame::KeyDownEvent1)
+
   // EVT_TREE_ITEM_RIGHT_CLICK( wxID_ANY,TreeFrame::toggle_item_onClick )
 END_EVENT_TABLE()
 #endif
