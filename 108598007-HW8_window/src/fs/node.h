@@ -107,9 +107,9 @@ public:
       return path;
   }
 
-  int size() {
-    return _st.st_size;
-  }
+  // int size() {
+  //   return _st.st_size;
+  // }
   virtual void scanAllNode(vector<Node*> v,vector<Node*> &nameVec,string name){
     throw string("File can't scan all node!");
   }

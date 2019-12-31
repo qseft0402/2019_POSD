@@ -38,12 +38,37 @@ public:
     // entries[0].Set(wxACCEL_CTRL,WXK_RETURN);
     // wxAcceleratorTable accel(1,entries);
     // _textArea->SetAcceleratorTable(accel);
-    // _textArea->Connect(wxID_ANY,wxEVT_KEY_DOWN,wxKeyEventHandler(TreeFrame::KeyDownEvent1),NULL,this);
-    // _tree->Bind(wxEVT_LEFT_DOWN  , &TreeFrame::toggle_item_onClick, this);
+    _textArea->Bind(wxEVT_KEY_DOWN ,wxKeyEventHandler(TreeFrame::KeyDownEvent),this);
+    _textArea->Bind(wxEVT_KEY_UP ,wxKeyEventHandler(TreeFrame::KeyUpEvent),this);
+    
+    _tree->Bind(wxEVT_KEY_DOWN  ,wxKeyEventHandler(TreeFrame::KeyDownEvent), this);
+    _tree->Bind(wxEVT_KEY_UP ,wxKeyEventHandler(TreeFrame::KeyUpEvent),this);
 
   }
-void KeyDownEvent1(wxKeyEvent& event){
-  cout<<"KeyDownEvent1"<<endl;
+void KeyUpEvent(wxKeyEvent& event){
+  cout<<"keyUPEvent"<<endl;
+
+  keyBordTemp.clear();
+  event.Skip();
+}
+void KeyDownEvent(wxKeyEvent& event){
+  if(keyBordTemp.size()>1) keyBordTemp.clear();
+  keyBordTemp.push_back(event.GetKeyCode());
+  if(keyBordTemp.at(0)==308){
+    cout<<"press ctrl"<<endl;
+    if(keyBordTemp.size()==1){
+      return;
+    }
+    if(keyBordTemp.at(1)==83){
+      cout<<"press s"<<endl;
+      saveFile();
+    }
+  }
+  else{
+    keyBordTemp.clear();
+    event.Skip();
+  } 
+
 }
   string ReadFile(string path){
     std::ifstream in(path.c_str());
@@ -113,19 +138,19 @@ void KeyDownEvent1(wxKeyEvent& event){
 void updateTree(Node* root){
     Iterator* it=root->createIterator();
     // cout<<"updateTree root="<<root->getPath()<<endl;
-    wxTreeItemId rootId = _tree->AddRoot(wxT_2(root->name()+", "+to_string(root->size())));
+    wxTreeItemId rootId = _tree->AddRoot(wxT_2(root->name()+", "+to_string(root->getSize())));
     root->setWxTreeItemId(rootId);
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
       if(node->getType()!=2){
         // cout<<"build!! "<<node->getPath()<<endl;
-        wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->size())));
+        wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->getSize())));
         node->setWxTreeItemId(id);
         // cout<<"build!! id="<<node->getWxTreeItemId()<<endl;
 
 
       }else{
-        wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->size())));
+        wxTreeItemId id=_tree->AppendItem(rootId, wxT_2(node->name()+", "+to_string(node->getSize())));
         node->setWxTreeItemId(id);
         updateTreeItem(id,node);
       }
@@ -137,7 +162,7 @@ void updateTreeItem(wxTreeItemId pid,Node* subRoot){
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
 
-        wxTreeItemId id =_tree->AppendItem(pid, wxT_2(node->name()+", "+to_string(node->size())));
+        wxTreeItemId id =_tree->AppendItem(pid, wxT_2(node->name()+", "+to_string(node->getSize())));
         node->setWxTreeItemId(id);
       if(node->getType()==2){
 
@@ -311,21 +336,21 @@ void saveFile(){
 bool ctrlRun=false;
 bool slRun=false;
 
-void KeyDownEvent(wxTreeEvent& event){
-  cout<<"key press!!"<<event.GetKeyCode()<<endl;
-  if(event.GetKeyCode()==308) ctrlRun=true;
-  else if(event.GetKeyCode()==83) slRun=true;
-  else{
-     resetCtrlAndS();
-  }
-  if(ctrlRun && slRun)
-  {
-    saveFile();
-  }
-}
+// void KeyDownEvent(wxTreeEvent& event){
+//   cout<<"key press!!"<<event.GetKeyCode()<<endl;
+//   if(event.GetKeyCode()==308) ctrlRun=true;
+//   else if(event.GetKeyCode()==83) slRun=true;
+//   else{
+//      resetCtrlAndS();
+//   }
+//   if(ctrlRun && slRun)
+//   {
+//     saveFile();
+//   }
+// }
 void resetCtrlAndS(){
-    ctrlRun=false;
-     slRun=false;
+   ctrlRun=false;
+   slRun=false;
 }
 void DialogFeedback(wxInitDialogEvent&  event){
   cout<<"DialogFeedback"<<endl;
@@ -341,6 +366,7 @@ private:
   string _filePath;
   wxTreeItemId _updateItemSizeId;
   wxTreeEvent _selectEvent;
+  std::vector<int> keyBordTemp;
 };
 
 BEGIN_EVENT_TABLE(TreeFrame, wxFrame)
@@ -349,7 +375,7 @@ BEGIN_EVENT_TABLE(TreeFrame, wxFrame)
   EVT_TREE_SEL_CHANGED(wxID_ANY,TreeFrame::read_file_item_onClick)
   EVT_TREE_BEGIN_LABEL_EDIT(wxID_ANY,TreeFrame::test)
   EVT_BUTTON(wxID_ANY, TreeFrame::saveBtnFunc)
-  EVT_TREE_KEY_DOWN(wxID_ANY,TreeFrame::KeyDownEvent)
+  // EVT_TREE_KEY_DOWN(wxID_ANY,TreeFrame::KeyDownEvent)
   // EVT_TEXT_ENTER(wxID_ANY,TreeFrame::KeyDownEvent1)
   EVT_INIT_DIALOG(TreeFrame::DialogFeedback)
   // EVT_CHAR(TreeFrame::KeyDownEvent1 )
@@ -359,4 +385,5 @@ BEGIN_EVENT_TABLE(TreeFrame, wxFrame)
 
   // EVT_TREE_ITEM_RIGHT_CLICK( wxID_ANY,TreeFrame::toggle_item_onClick )
 END_EVENT_TABLE()
+
 #endif
