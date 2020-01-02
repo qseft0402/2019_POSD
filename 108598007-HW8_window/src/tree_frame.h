@@ -269,34 +269,42 @@ string getStrName(string str){
   return temp;
 }
 Node* getNodeById(wxTreeItemId id,Node* root){
-  Folder * folder = dynamic_cast<Folder *> (root);
-  // cout<<"getNodeByid root= "<<folder->getPath()<<"  "<<folder->getChild("ffff")->getWxTreeItemId()<<endl;
+  Node* targetNode=nullptr;
+  cout<<"target id :"<<id<<endl;
   if(root->getWxTreeItemId()==id){
-    return root;
-  }else{
+    targetNode=root;
+  }
+  Folder * folder = dynamic_cast<Folder *> (root);
+  if(folder!=nullptr){
     Iterator* it=folder->createIterator();
-    // cout<<"getNodeById count!!"<<folder->getChildrenSize()<<endl;
-
     for(it->first();!it->isDone();it->next()){
       Node* node=it->currentItem();
-      // cout<<"in get node "<<node->getPath()<<" id="<<node->getWxTreeItemId()<<endl;
+      cout<<"current id :"<<node->getWxTreeItemId()<<endl;
       if(node->getWxTreeItemId()==id){
-        // cout<<"find! "<<node->getWxTreeItemId()<<endl;
-        return node;
+        cout<<"retrun !!"<<node->name()<<endl;
+        targetNode=node;
+      }
+      if(node->getType()==2){
+        subgetNodeById(id,node,targetNode);
       }
     }
-
-    for(it->first();!it->isDone();it->next()){
-      Node* node=it->currentItem();
-        if(node->getType()==2)
-          return getNodeById(id,node);
-      }
-
   }
 
-return nullptr;
-
-
+return targetNode;
+}
+void subgetNodeById(wxTreeItemId id,Node* root,Node* &targetNode){
+  Iterator* it=root->createIterator();
+  for(it->first();!it->isDone();it->next()){
+    Node* node=it->currentItem();
+    cout<<"current id :"<<node->getWxTreeItemId()<<endl;
+    if(node->getWxTreeItemId()==id){
+      cout<<"retrun !!"<<node->name()<<endl;
+      targetNode=node;
+    }
+    if(node->getType()==2){
+      subgetNodeById(id,node,targetNode);
+    }
+  }
 }
 void test(wxTreeEvent& event){
   cout<<"TEST!!"<<endl;
