@@ -11,7 +11,7 @@ class TreeFrame : public wxFrame
 {
 public:
 
-  TreeFrame(const wxChar *title,wxString rootPath, int xpos, int ypos, int width, int height):wxFrame((wxFrame *) nullptr, -1, title, wxPoint(xpos, ypos), wxSize(width, height))
+  TreeFrame(const wxChar *title,wxString rootPath, int xpos, int ypos, int width, int height):wxFrame((wxFrame *) nullptr, -1, title, wxPoint(xpos, ypos), wxSize(width, height)),_selcetNode(_root)
   {
 
     wxPanel* panel = new wxPanel(this, wxID_ANY);
@@ -20,6 +20,7 @@ public:
     root=SetFileSystem(string(rootPath.mb_str()));
 
     _root=root;
+    _selcetNode=root;
      Folder * folder = dynamic_cast<Folder *> (root);
 
     // cout<<"count!: "<<folder->getChild("ffff")->getPath()<<endl;
@@ -40,7 +41,7 @@ public:
     // _textArea->SetAcceleratorTable(accel);
     _textArea->Bind(wxEVT_KEY_DOWN ,wxKeyEventHandler(TreeFrame::KeyDownEvent),this);
     _textArea->Bind(wxEVT_KEY_UP ,wxKeyEventHandler(TreeFrame::KeyUpEvent),this);
-    
+
     _tree->Bind(wxEVT_KEY_DOWN  ,wxKeyEventHandler(TreeFrame::KeyDownEvent), this);
     _tree->Bind(wxEVT_KEY_UP ,wxKeyEventHandler(TreeFrame::KeyUpEvent),this);
 
@@ -51,24 +52,30 @@ void KeyUpEvent(wxKeyEvent& event){
   keyBordTemp.clear();
   event.Skip();
 }
+
 void KeyDownEvent(wxKeyEvent& event){
-  if(keyBordTemp.size()>1) keyBordTemp.clear();
-  keyBordTemp.push_back(event.GetKeyCode());
-  if(keyBordTemp.at(0)==308){
-    cout<<"press ctrl"<<endl;
-    if(keyBordTemp.size()==1){
-      return;
+
+  if(_selcetNode->getType()==1){
+    if(keyBordTemp.size()>1) keyBordTemp.clear();
+    keyBordTemp.push_back(event.GetKeyCode());
+    if(keyBordTemp.at(0)==308){
+      cout<<"press ctrl"<<endl;
+      if(keyBordTemp.size()==1){
+        return;
+      }
+      if(keyBordTemp.at(1)==83){
+        cout<<"press s"<<endl;
+        saveFile();
+      }
     }
-    if(keyBordTemp.at(1)==83){
-      cout<<"press s"<<endl;
-      saveFile();
+    else{
+      keyBordTemp.clear();
+      event.Skip();
     }
   }
   else{
-    keyBordTemp.clear();
     event.Skip();
-  } 
-
+  }
 }
   string ReadFile(string path){
     std::ifstream in(path.c_str());
@@ -96,7 +103,7 @@ void KeyDownEvent(wxKeyEvent& event){
   // wxTreeEvent& _event=nullptr;
 
 
-
+Node* _selcetNode;
   void read_file_item_onClick(wxTreeEvent &event)
 {
 
@@ -105,6 +112,7 @@ void KeyDownEvent(wxKeyEvent& event){
     std::cout << itemId<< std::endl;
     // cout<<"going to find "<<itemId<<endl;
     Node* node=getNodeById(itemId,_root);
+    _selcetNode=node;
     // cout<<" id= "<<itemId<<endl;
     _filePath=node->getPath();
     if(!node) cout<<"NULLPTR"<<endl;
@@ -256,6 +264,7 @@ void updataItemSize(wxTreeItemId itemId,Node* node){
   _tree->Refresh();
 
 }
+
 string getStrName(string str){
   size_t  pos=str.find(',');
   string temp;
@@ -268,6 +277,7 @@ string getStrName(string str){
   }
   return temp;
 }
+
 Node* getNodeById(wxTreeItemId id,Node* root){
   Node* targetNode=nullptr;
   cout<<"target id :"<<id<<endl;
@@ -289,9 +299,9 @@ Node* getNodeById(wxTreeItemId id,Node* root){
       }
     }
   }
-
 return targetNode;
 }
+
 void subgetNodeById(wxTreeItemId id,Node* root,Node* &targetNode){
   Iterator* it=root->createIterator();
   for(it->first();!it->isDone();it->next()){
@@ -306,21 +316,20 @@ void subgetNodeById(wxTreeItemId id,Node* root,Node* &targetNode){
     }
   }
 }
+
 void test(wxTreeEvent& event){
   cout<<"TEST!!"<<endl;
 }
+
 void DClick(wxTreeEvent& event){
   cout<<"DClick!!"<<endl;
   _tree->EditLabel(event.GetItem());
 }
+
 void saveBtnFunc(wxCommandEvent& event){
   cout<<"ID:"<<event.GetId()<<endl;
   cout<<"save!!"<<endl;
   saveFile();
-
-
-
-
 }
 void saveFile(){
   Node* node=getNodeById(_updateItemSizeId,_root);
@@ -341,25 +350,7 @@ void saveFile(){
   updataItemSize(_updateItemSizeId,node);
 
 }
-bool ctrlRun=false;
-bool slRun=false;
 
-// void KeyDownEvent(wxTreeEvent& event){
-//   cout<<"key press!!"<<event.GetKeyCode()<<endl;
-//   if(event.GetKeyCode()==308) ctrlRun=true;
-//   else if(event.GetKeyCode()==83) slRun=true;
-//   else{
-//      resetCtrlAndS();
-//   }
-//   if(ctrlRun && slRun)
-//   {
-//     saveFile();
-//   }
-// }
-void resetCtrlAndS(){
-   ctrlRun=false;
-   slRun=false;
-}
 void DialogFeedback(wxInitDialogEvent&  event){
   cout<<"DialogFeedback"<<endl;
 }
