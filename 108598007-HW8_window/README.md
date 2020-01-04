@@ -3,88 +3,144 @@
 #### Dept. of Computer Science and Information Engineering
 #### Taipei Tech
 
-#### Homework 7
+#### Homework 8
 
 # Purpose of the homework
+####  Implement Observer Pattern.
+####  Implement the text editor with following feature.
+   * Show folder structure with file size.
+   * Modify file name and save the change.
+   * Show the file content.
+   * Modify file content and save the change.
 
-####  Use the [course material](https://ssl-gitlab.csie.ntut.edu.tw/yccheng/posd2019f) to implement FileSystemBuilder and verify the node is created correctly by builder.
+Write down which your development enviroment is in `README.md`, MAC, LINUX or Ubuntu bash in win10.
 
-### practice Singleton pattern.
+If you don't record your development enviroment then we will run your program in Ubuntu bash in win10. 
+
+And if it cannot run in TA's machine, you will not get any grade.
 
 # Requirements
- 1. You can reference [course project directory](https://ssl-gitlab.csie.ntut.edu.tw/yccheng/posd2019f).
+ 1. Display the folder structures using wxwidgets.
+
+ ![main page](/image/mainpage.png)
+
+ 2. **Feature 1: Show folder structure with file size.**
+
+ Use the command to choose which folder structure should represent in wxwidgets.
+
+ Type following command:
+
+ ![command](/image/command.PNG)
+
+ Representation:
+
+ ![main page](/image/mainpage.png)
+
+ Demo:
+ [Feature1](https://drive.google.com/file/d/1HJukDp3vXKt0IG05xKubMKE-XEyXnKua/view?usp=sharing)
+
+ `Tips: Use the wxTreeCtrl to implement this feature.`
+
+ 3. **Feature 2: Modify file name and save the change.**
+
+ Double click the label to enter the edit mode.  After renaming the file, Show the dialog when pressing the Enter. Click yes to save the change, otherwise, discard save.
+
+ You should not be allowed to edit the part of size in the label.
+
+ Double click:
+
+ ![editTreeView](/image/editTreeView.png)
+
+ Rename and press Enter:
+
+ ![Show dialog](/image/editTreeViewDialog.png)
+
+ Save the change:
+
+
+ ![Save the change](/image/SaveTheChangeInTreeView.png)
+
+ Edit size:
+
+ ![Edit size](/image/editSize.png)
+
+ Press `Enter` after editing size:
+
+ ![Press `Enter` after editing size](/image/pressEnterAfterEditSize.png)
+
+
+ Demo:
+ [Feature2](https://drive.google.com/file/d/1zJ2_eUUdu8mF-y0UMB2YE2a90CcmYhzz/view?usp=sharing)
+
+ `Note: Use Observer pattern.`
+
+ 4. **Feature 3: Show the file content**
+
+ Click the Node in tree view on the left of the application windows. And show the corresponding text content on right of the application windows. if the node can not show the text content. please show the default content on the right of the application windows.
+
+ default content:
  
- 2. Throwing an exception as hw6 if your path of constructor does not correspond with your class or the node doesn't exist.
+ binary file & link: "The file is not displayed in the editor because it uses an unsupported text encoding.".
 
-        TEST (FileSystemTest, NodeTypeError)
-        {
-          ASSERT_ANY_THROW(new File("./123")); //If the node doesn't exist, you should throw string "Node is not exist!"
-          ASSERT_ANY_THROW(new File("./test_data/folder")); //If the File doesn't exist, you should throw string "It is not File!"
-          ASSERT_ANY_THROW(new Folder("./test_data/hello")); //If the Folder doesn't exist, you should throw string "It is not Folder!"
-          ASSERT_ANY_THROW(new Link("./test_data/test")); //If the Link doesn't exist, you should throw string "It is not Link!"
-        }
+ folder: do not show anything.
 
- 3. Link class will have nullptr as default target if you didn't give it target in constructor.
+ Click the node which can show the text content.
 
- 4. Creat FileSystemBuilder class in `filesystem_builder.h` and implement it in `filesystem_builder.cpp`. The interface of FileSystemBuilder is as follows:
- 
+ ![textContent page](/image/editViewShowTextfile.png)
 
-        class FileSystemBuilder  {
-            protected:
-                FileSystemBuilder();
-            public:
-                static FileSystemBuilder * instance();
-                void build(string path);
-                Node * getRoot();
-        }
-        
- 5. Apply Singleton pattern on FileSystemBuilder. This means you will access the same FileSystemBuilder each time.        
+ Click the node which can not show the text content.
 
- 6. TA will write test cases to verify the builder can build the correct object.
+ ![binaryContent page](/image/editViewShowBinaryfileDefaultValue.png)
 
-        TEST(FileSystemBuilder, file){
-          FileSystemBuilder * fb = FileSystemBuilder::instance();
-          fb.build("test/test_folder/a.out");
-          ASSERT_EQ("a.out", fb.getRoot()->name());
-          ASSERT_EQ("test/test_folder/a.out", fb.getRoot()->getPath());
-        }
+ Demo:
+ [Feature3](https://drive.google.com/file/d/1FhPhdp2hPRkcRN5gqjWMEMui4vtbp9JY/view?usp=sharing)
 
- 7. Use `std::map` in folder and take name of node as key of map to make sure the sequence in folder is the same as TA.
- 
- 8. You don't have to let Link class to point to the target in builder. 
+ `Tips: Use the wxTextCtrl to implement this feature.`
 
- 9. Write the corresponding makefile to generate executable file which named `ut_all` in bin folder.
+ 5. **Feature 4: Modify file content and save the change**
+
+ Modity the text content and click the save button or press `ctrl+s` key to save the change. Show the dialog when you click save button or press `ctrl+s` key. Click yes to save the change, otherwise, discard save.
+
+ Edit the content and click the save button or press `ctrl+s` key:
+
+ ![Show dialog](/image/editEditViewDialog.png)
+
+ Save the change:
+
+ ![Save the change](/image/SaveEditView.png)
+
+ After change the file content the size of the file will change, and you should alse update the size in the label!
+
+ Demo:
+ [Feature4](https://drive.google.com/file/d/11sYX52X-NHpEnJR7U2_uvKJG5rqMBJXp/view?usp=sharing)
+
+ `Note: Use Observer pattern.`
+
+ 6. Write the corresponding makefile to generate executable file which named `hw8` in bin folder.
+
 
 # Grading rubrics
-
-TA assigned 8 test cases in CI.
+Each feature is 25 points.
 
 # Deadline
-11:59 p.m. 11 Dec 2019
+11:59 p.m. 4 Jan  2020
 
 # Note
-`ut_main.cpp` should include "ut_fs.h"
+Make sure your wxwidgets is installed and working correctly.
+Then you can push to Gitlab.
+
+Write the corresponding makefile to generate executable file which named `hw8` in bin folder.
+
+We will `make` in TA's machine to generate `hw8` and you should have the following file structure.
+
+
+#### File structure:
 
 ```
 - bin
-    - ut_all
 - obj
-    - filesystem_builder.o
 - src
-    - file.h
-    - filesystem_builder.cpp
-    - filesystem_builder.h
-    - folder.h
-    - iterator.h
-    - link.h
-    - node.h
-    - null_iterator.h
-    - visitor.h
 - test
-    - test_folder
-    - ut_fs.h
-    - ut_main.cpp
 makefile
+README.md
 ```
-1. Make sure your all tests pass on your local machine. 
-Then you can push to Gitlab and see the report on Jenkins.
